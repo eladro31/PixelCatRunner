@@ -20,4 +20,6 @@
         <preference name="KeepRunning" value="true" />
     </platform>
 </widget>
-
+<preference name="AllowInlineMediaPlayback" value="true" />
+<preference name="MediaPlaybackRequiresUserAction" value="false" />
+<preference name="AutoplayImmutableState" value="true" />
