@@ -5,7 +5,6 @@
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
     <title>Pixel Cat Runner</title>
     <style>
-        /* Pantalla completa negra sin márgenes */
         body { 
             margin: 0; 
             padding: 0; 
@@ -15,16 +14,44 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            font-family: sans-serif;
         }
-        /* El video se ajusta al tamaño del celular sin deformarse */
+        
         video { 
             width: 100vw; 
             height: 100vh; 
             object-fit: cover; 
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* Diseño del botón "Omitir" */
+        #skipBtn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            z-index: 10; /* Asegura que esté por encima del video */
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        #skipBtn:active {
+            background: white;
+            color: black;
         }
     </style>
 </head>
 <body>
+
+    <button id="skipBtn">Omitir carga</button>
 
     <video id="pcrVideo" autoplay muted playsinline loop>
         <source src="69565.mp4" type="video/mp4">
@@ -33,26 +60,33 @@
     <script src="cordova.js"></script>
 
     <script>
-        // Evento principal: Se dispara cuando la App está lista en el celular
+        const video = document.getElementById('pcrVideo');
+        const skipBtn = document.getElementById('skipBtn');
+
+        // Función para saltar o iniciar el juego
+        function skipIntro() {
+            // Aquí puedes decidir qué pasa al omitir:
+            // Por ejemplo, cargar el segundo video (el juego)
+            video.src = "69566.mp4";
+            video.play();
+            video.muted = false; // Activamos el sonido al omitir
+            
+            // Desaparecemos el botón después de tocarlo
+            skipBtn.style.display = 'none';
+        }
+
+        // Evento al hacer clic en el botón
+        skipBtn.addEventListener('click', skipIntro);
+
         document.addEventListener('deviceready', function() {
-            var video = document.getElementById('pcrVideo');
-            
-            console.log("App lista. Forzando reproducción...");
-            
-            // Forzamos el play. Al estar en 'muted', Android DEBE dejarlo pasar
-            video.play().then(function() {
-                console.log("Éxito: El video corre solo.");
-            }).catch(function(error) {
-                console.log("Error de protección: Esperando interacción del usuario.");
-            });
+            console.log("App lista.");
+            video.play();
         }, false);
 
-        // Hack de audio: Al primer toque en la pantalla, activamos el sonido
-        document.addEventListener('click', function() {
-            var video = document.getElementById('pcrVideo');
-            if (video.muted) {
+        // Si el usuario toca cualquier otra parte, solo quitamos el mute
+        document.addEventListener('click', function(e) {
+            if(e.target.id !== 'skipBtn') {
                 video.muted = false;
-                console.log("Audio desbloqueado.");
             }
         }, { once: true });
     </script>
