@@ -2,7 +2,7 @@ name: Build APK
 on:
   push:
     branches:
-      - principal  # <--- Cambiado de 'main' a 'principal'
+      - main  # <--- Cambiado de 'main' a 'principal'
 
 jobs:
   build:
