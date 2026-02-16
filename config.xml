@@ -19,7 +19,12 @@
     <preference name="BackgroundColor" value="#000000" />
 
     <platform name="android">
-        <allow-intent href="market:*" />
-        <preference name="KeepRunning" value="true" />
-    </platform>
-</widget>
+    <preference name="AndroidInsecureFileModeEnabled" value="true" />
+    <preference name="Scheme" value="app" />
+    <preference name="Hostname" value="localhost" />
+    
+    <allow-intent href="market:*" />
+    <preference name="KeepRunning" value="true" />
+</platform>
+        
+    
