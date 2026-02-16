@@ -1,16 +1,19 @@
 name: Build APK
-on: [push] # Se activa cada vez que subes un cambio
+on:
+  push:
+    branches:
+      - principal  # <--- Cambiado de 'main' a 'principal'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install Cordova
         run: npm install -g cordova
@@ -18,6 +21,8 @@ jobs:
       - name: Build Android APK
         run: |
           cordova platform add android
+          # Esto acepta las licencias automáticamente
+          yes | sdkmanager --licenses || true
           cordova build android --debug
 
       - name: Upload APK
@@ -25,4 +30,3 @@ jobs:
         with:
           name: PixelCatRunner-APK
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
-          
