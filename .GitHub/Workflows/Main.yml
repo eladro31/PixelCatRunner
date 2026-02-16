@@ -1,0 +1,28 @@
+name: Build APK
+on: [push] # Se activa cada vez que subes un cambio
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Build Android APK
+        run: |
+          cordova platform add android
+          cordova build android --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PixelCatRunner-APK
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          
