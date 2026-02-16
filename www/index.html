@@ -1,204 +1,60 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pixel Cat Runner - Beta</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <title>Pixel Cat Runner</title>
     <style>
-        /* Forzamos que el cuerpo ocupe toda la pantalla sin bordes */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            overflow: hidden; background: #000; 
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none; -webkit-tap-highlight-color: transparent;
+        /* Pantalla completa negra sin márgenes */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: black; 
+            overflow: hidden; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-
-        /* Contenedor de Video: Siempre pantalla completa */
-        #media-container { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: #fff; z-index: 3000; display: flex; 
-            align-items: center; justify-content: center; 
-        }
-
-        <video id="miGato" autoplay muted playsinline loop>
-  <source src="69565.mp4" type="video/mp4">
-</video>
-        
-
-        /* Canvas Responsivo: Se estira pero mantiene proporción */
-        canvas { 
-            background: #fff; border-bottom: 4px solid #4CAF50; 
-            width: 100vw; height: auto; max-height: 100vh;
-            display: none; touch-action: none; 
-        }
-
-        /* UI adaptable */
-        #ui-container { 
-            position: absolute; text-align: center; width: 100%; 
-            z-index: 2000; display: none; 
-        }
-
-        #start-screen, #game-over { 
-            background: rgba(255,255,255,0.9); padding: 20px; 
-            border-radius: 15px; border: 4px solid #333;
-            display: inline-block;
-        }
-
-        button { 
-            padding: 12px 24px; font-size: 18px; background: #4CAF50; 
-            color: white; border: none; border-radius: 10px; font-weight: bold;
+        /* El video se ajusta al tamaño del celular sin deformarse */
+        video { 
+            width: 100vw; 
+            height: 100vh; 
+            object-fit: cover; 
         }
     </style>
 </head>
 <body>
 
-    <div id="media-container" onclick="iniciarTodo()">
-        <div id="beta-start" style="text-align: center;">
-            <h2 style="margin:0;">PIXEL CAT RUNNER</h2>
-            <p>TOCA PARA INICIAR PRUEBA</p>
-            <p style="font-size: 12px; color: #666;">(Se recomienda modo horizontal)</p>
-        </div>
-    </div>
+    <video id="pcrVideo" autoplay muted playsinline loop>
+        <source src="69565.mp4" type="video/mp4">
+    </video>
 
-    <div id="ui-container">
-        <div id="start-screen">
-            <h1>MENÚ</h1>
-            <button onclick="startGame()">EMPEZAR</button>
-        </div>
-        <div id="game-over" style="display: none;">
-            <h1>¡FIN!</h1>
-            <p id="final-score"></p>
-            <button onclick="startGame()">REINTENTAR</button>
-        </div>
-        <div id="game-ui" style="display: none; position: fixed; top: 10px; width: 100%; text-align: center;">
-            <b style="font-size: 20px; background: white; padding: 5px 15px; border-radius: 20px;">SCORE: <span id="score-val">0</span></b>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
+    <script src="cordova.js"></script>
 
     <script>
-        const mediaContainer = document.getElementById("media-container");
-        const uiContainer = document.getElementById("ui-container");
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreVal = document.getElementById("score-val");
-
-        let currentPhase = "intro";
-        let gameActive = false;
-        let score = 0;
-        let obstacles = [];
-        let gameSpeed = 7;
-        let assetsListos = false;
-        let assetsCargados = 0;
-
-        // --- FUNCION PARA PANTALLA COMPLETA Y GIRO ---
-        function iniciarTodo() {
-            // Pedir pantalla completa
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            }
+        // Evento principal: Se dispara cuando la App está lista en el celular
+        document.addEventListener('deviceready', function() {
+            var video = document.getElementById('pcrVideo');
             
-            // Intentar bloquear orientación horizontal (solo funciona en algunos navegadores/apps)
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(err => console.log("Giro no soportado"));
+            console.log("App lista. Forzando reproducción...");
+            
+            // Forzamos el play. Al estar en 'muted', Android DEBE dejarlo pasar
+            video.play().then(function() {
+                console.log("Éxito: El video corre solo.");
+            }).catch(function(error) {
+                console.log("Error de protección: Esperando interacción del usuario.");
+            });
+        }, false);
+
+        // Hack de audio: Al primer toque en la pantalla, activamos el sonido
+        document.addEventListener('click', function() {
+            var video = document.getElementById('pcrVideo');
+            if (video.muted) {
+                video.muted = false;
+                console.log("Audio desbloqueado.");
             }
-
-            iniciarSecuencia();
-        }
-
-        // --- CARGA DE IMAGENES ---
-        function checkAssets() {
-            assetsCargados++;
-            if (assetsCargados === 4) assetsListos = true;
-        }
-
-        const catImg1 = new Image(); catImg1.src = "https://i.ibb.co/jZWMq5n1/1771218029879.png";
-        catImg1.onload = checkAssets;
-        const catImg2 = new Image(); catImg2.src = "https://i.ibb.co/21kxJx9x/1771218018664.png";
-        catImg2.onload = checkAssets;
-        const obsImg1 = new Image(); obsImg1.src = "https://cdn-icons-png.flaticon.com/512/765/765613.png"; 
-        obsImg1.onload = checkAssets;
-        const obsImg2 = new Image(); obsImg2.src = "https://cdn-icons-png.flaticon.com/512/2553/2553653.png";
-        obsImg2.onload = checkAssets;
-
-        // --- LOGICA DE VIDEOS ---
-        function iniciarSecuencia() {
-            if (currentPhase !== "intro") return;
-            mediaContainer.innerHTML = `<video id="v" playsinline muted autoplay style="width:100%;height:100%;"><source src="69565.mp4" type="video/mp4"></video>`;
-            const v = document.getElementById("v");
-            v.play();
-            v.onended = () => {
-                if(currentPhase === "intro") {
-                    currentPhase = "loading";
-                    v.src = "69566.mp4"; v.play();
-                } else if (currentPhase === "loading") {
-                    if (assetsListos) finalizarCarga();
-                    else { v.currentTime = 0; v.play(); }
-                }
-            };
-        }
-
-        function finalizarCarga() {
-            mediaContainer.style.display = "none";
-            uiContainer.style.display = "block";
-            canvas.style.display = "block";
-        }
-
-        // --- MOTOR DEL JUEGO ---
-        let player = { x: 50, y: 220, w: 70, h: 70, dy: 0, jumpForce: 14, gravity: 0.7, grounded: false, frame: 1, animTimer: 0 };
-
-        function startGame() {
-            document.getElementById("start-screen").style.display = "none";
-            document.getElementById("game-over").style.display = "none";
-            document.getElementById("game-ui").style.display = "block";
-            score = 0; scoreVal.innerText = "0";
-            obstacles = []; gameSpeed = 7; player.y = 220; player.dy = 0;
-            gameActive = true;
-        }
-
-        function handleInput(e) {
-            if (!gameActive) return;
-            if (e.type === "touchstart") e.preventDefault();
-            if (player.grounded) { player.dy = -player.jumpForce; player.grounded = false; }
-        }
-
-        window.addEventListener('touchstart', handleInput, { passive: false });
-        window.addEventListener('mousedown', handleInput);
-
-        function update() {
-            if (!gameActive) return;
-            player.dy += player.gravity;
-            player.y += player.dy;
-            if (player.y > 230) { player.y = 230; player.dy = 0; player.grounded = true; }
-            if(player.grounded) {
-                player.animTimer++;
-                if(player.animTimer > 6) { player.frame = player.frame === 1 ? 2 : 1; player.animTimer = 0; }
-            }
-            if (Math.random() < 0.015 && (obstacles.length === 0 || obstacles[obstacles.length-1].x < 350)) {
-                obstacles.push({ x: 650, y: 260, w: 40, h: 40, img: Math.random() > 0.5 ? obsImg1 : obsImg2 });
-            }
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= gameSpeed;
-                if (player.x < obstacles[i].x + 30 && player.x + 50 > obstacles[i].x && player.y + 10 < obstacles[i].y + 30 && player.y + 60 > obstacles[i].y) {
-                    gameActive = false;
-                    document.getElementById("final-score").innerText = "SCORE: " + score;
-                    document.getElementById("game-over").style.display = "block";
-                }
-                if (obstacles[i].x < -50) { obstacles.splice(i, 1); score++; scoreVal.innerText = score; gameSpeed += 0.05; }
-            }
-        }
-
-        function draw() {
-            canvas.width = 600; canvas.height = 300;
-            ctx.clearRect(0, 0, 600, 300);
-            ctx.drawImage(player.frame === 1 ? catImg1 : catImg2, player.x, player.y, player.w, player.h);
-            for (let o of obstacles) ctx.drawImage(o.img, o.x, o.y, o.w, o.h);
-            update();
-            requestAnimationFrame(draw);
-        }
-        draw();
+        }, { once: true });
     </script>
 </body>
 </html>
