@@ -12,7 +12,8 @@
 
     <preference name="Orientation" value="landscape" />
     <preference name="Fullscreen" value="true" />
-    <preference name="BackgroundColor" value="0xff000000" />
+    <preference name="BackgroundColor" value="#000000" />
+    
 
     <platform name="android">
         <allow-intent href="market:*" />
