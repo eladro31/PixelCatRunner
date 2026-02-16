@@ -13,18 +13,15 @@
     <preference name="AllowInlineMediaPlayback" value="true" />
     <preference name="MediaPlaybackRequiresUserAction" value="false" />
     <preference name="AutoplayImmutableState" value="true" />
-
     <preference name="Orientation" value="landscape" />
     <preference name="Fullscreen" value="true" />
     <preference name="BackgroundColor" value="#000000" />
 
     <platform name="android">
-    <preference name="AndroidInsecureFileModeEnabled" value="true" />
-    <preference name="Scheme" value="app" />
-    <preference name="Hostname" value="localhost" />
-    
-    <allow-intent href="market:*" />
-    <preference name="KeepRunning" value="true" />
-</platform>
-        
-    
+        <preference name="AndroidInsecureFileModeEnabled" value="true" />
+        <preference name="Scheme" value="app" />
+        <preference name="Hostname" value="localhost" />
+        <allow-intent href="market:*" />
+        <preference name="KeepRunning" value="true" />
+    </platform>
+</widget>
